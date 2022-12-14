@@ -42,24 +42,21 @@ type ArrayToStringParam struct {
 func ArrayToString(param *ArrayToStringParam) string {
 	builder := strings.Builder{}
 	if !IsEmpty(param.start) {
-		builder.Grow(len(param.start))
+		builder.WriteString(param.start)
 	}
 
 	l := len(*param.arr)
-	sl := len(param.separator)
 	for i, c := range *param.arr {
 		s := fmt.Sprintf("%v", c)
-		builder.Grow(len(s))
 		builder.WriteString(s)
 
 		if i < l-1 {
-			builder.Grow(sl)
 			builder.WriteString(param.separator)
 		}
 	}
 
 	if !IsEmpty(param.end) {
-		builder.Grow(len(param.end))
+		builder.WriteString(param.end)
 	}
 	return builder.String()
 }
