@@ -29,3 +29,12 @@ func TestToJsonString(t *testing.T) {
 		})
 	}
 }
+
+func TestGetGenerateOjb(t *testing.T) {
+	data := `{"account":"123456","name":"qiu","Level":10}`
+	p := new(user)
+	GetGenerateOjb(data, p)
+	if p.Level != 10 || p.Account != "123456" || p.Name != "qiu" {
+		t.Fail()
+	}
+}
