@@ -122,10 +122,17 @@ func GetByRate(val, rate int64) int64 {
 	return (val * rate) / baseRate
 }
 
-// IsHit 万分比是否命中：在 [0, 10000) 随机后判断 <= rate。
-// 对应 Java MathUtil.isHit。
+// IsHit 万分比是否命中：在 [0, 10000) 上随机，命中条件为 r < rate。
+// 例如 rate=100 表示约 1%；rate=0 永不命中；rate>=10000 必命中。
+// 注意：Java MathUtil.isHit 使用 <=，会多计 1/10000；此处按万分比语义修正为 <。
 func IsHit(rate int) bool {
-	return RandomIntN(10000) <= rate
+	if rate <= 0 {
+		return false
+	}
+	if rate >= 10000 {
+		return true
+	}
+	return RandomIntN(10000) < rate
 }
 
 // ToInt 安全地将 int64 转为 int；超出 Java int（32 位）范围返回错误。

@@ -78,9 +78,21 @@ func TestGetByRateAndHit(t *testing.T) {
 			t.Fatalf("rate=%d", got)
 		}
 	})
-	t.Run("万分比命中不panic", func(t *testing.T) {
-		_ = IsHit(10000)
-		_ = IsHit(0)
+	t.Run("万分比命中边界", func(t *testing.T) {
+		if IsHit(0) {
+			t.Fatal("rate=0 should never hit")
+		}
+		if !IsHit(10000) {
+			t.Fatal("rate=10000 should always hit")
+		}
+		for i := 0; i < 200; i++ {
+			if IsHit(0) {
+				t.Fatal("rate=0 should never hit")
+			}
+			if !IsHit(10000) {
+				t.Fatal("rate=10000 should always hit")
+			}
+		}
 	})
 }
 
