@@ -92,11 +92,11 @@ var (
 	changeMonitorOnce sync.Once
 )
 
-// startChangeMonitor 启动与 Java 类似的定时轮询（约每 10 秒）。
+// startChangeMonitor 启动与 Java 类似的定时轮询（约每 15 秒）。
 func startChangeMonitor() {
 	changeMonitorOnce.Do(func() {
 		go func() {
-			t := time.NewTicker(10 * time.Second)
+			t := time.NewTicker(15 * time.Second)
 			defer t.Stop()
 			for range t.C {
 				changeMonitor.runOnce()
