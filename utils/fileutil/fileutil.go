@@ -116,8 +116,11 @@ func TailFileFrom(path string, startPos int64, lastNum int) ([]string, error) {
 	if lastNum <= 0 {
 		return nil, nil
 	}
+	// 对齐 Java：配合 GetFileLength 做增量尾读时，回退 1 字节落在上一行换行符上。
+	backedOntoPrevEOL := false
 	if startPos > 0 {
 		startPos--
+		backedOntoPrevEOL = true
 	}
 
 	length, err := GetFileLength(path)
@@ -147,6 +150,10 @@ func TailFileFrom(path string, startPos int64, lastNum int) ([]string, error) {
 	}
 	if err := sc.Err(); err != nil {
 		return nil, err
+	}
+	// 回退到上一行 '\n' 后，Scanner 会先读出空行，需去掉以对齐 Java RandomAccessFile 行为。
+	if backedOntoPrevEOL && len(lines) > 0 && lines[0] == "" {
+		lines = lines[1:]
 	}
 	if len(lines) > lastNum {
 		lines = lines[len(lines)-lastNum:]

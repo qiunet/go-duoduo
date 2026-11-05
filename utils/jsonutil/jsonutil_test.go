@@ -211,3 +211,83 @@ func TestMarshalUnmarshal_Bytes(t *testing.T) {
 		}
 	})
 }
+
+type jsonUser struct {
+	UserID int    `json:"userId"`
+	Name   string `json:"name"`
+}
+
+func TestJsonUtil_LikeJava(t *testing.T) {
+	t.Run("Map往返", func(t *testing.T) {
+		// 对齐 Java TestJsonUtil.testGetGeneralObject
+		in := map[string]int{"qiunet": 111}
+		json, err := ToJSONString(in)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var out map[string]int
+		if err := FromJSONString(json, &out); err != nil {
+			t.Fatal(err)
+		}
+		if out["qiunet"] != 111 {
+			t.Fatalf("out=%v", out)
+		}
+	})
+	t.Run("List往返", func(t *testing.T) {
+		// 对齐 Java TestJsonUtil.testGetGeneralList
+		in := []int{1, 2, 3}
+		json, err := ToJSONString(in)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var out []int
+		if err := FromJSONString(json, &out); err != nil {
+			t.Fatal(err)
+		}
+		if len(out) != 3 {
+			t.Fatalf("len=%d", len(out))
+		}
+		has3, has5 := false, false
+		for _, v := range out {
+			if v == 3 {
+				has3 = true
+			}
+			if v == 5 {
+				has5 = true
+			}
+		}
+		if !has3 || has5 {
+			t.Fatalf("out=%v", out)
+		}
+	})
+	t.Run("嵌套Map往返", func(t *testing.T) {
+		// 对齐 Java TestJsonUtil.testRefJson（不硬编码键序）
+		sub := map[string]string{"ATK": "aa", "DEF": "bb"}
+		in := map[int]map[string]string{1: sub, 2: sub, 3: sub}
+		json, err := ToJSONString(in)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var out map[int]map[string]string
+		if err := FromJSONString(json, &out); err != nil {
+			t.Fatal(err)
+		}
+		if out[2] == nil || out[2]["DEF"] != "bb" {
+			t.Fatalf("out=%v", out)
+		}
+	})
+	t.Run("结构体字段绑定", func(t *testing.T) {
+		// 对齐 Java TestJsonUtil.testBaseField
+		json, err := ToJSONString(map[string]any{"userId": 123456, "name": "qiunet"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		var user jsonUser
+		if err := FromJSONString(json, &user); err != nil {
+			t.Fatal(err)
+		}
+		if user.UserID != 123456 || user.Name != "qiunet" {
+			t.Fatalf("user=%+v", user)
+		}
+	})
+}

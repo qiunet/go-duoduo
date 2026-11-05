@@ -1,6 +1,7 @@
 package fileutil
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -43,6 +44,83 @@ func TestCreateAppendGetContent(t *testing.T) {
 	})
 }
 
+func TestAppendTailCopyLikeJava(t *testing.T) {
+	t.Run("多次中文追加尾读复制与增量TailFileFrom", func(t *testing.T) {
+		// 对齐 Java TestFileUtil.appendToFile
+		dir := t.TempDir()
+		path := filepath.Join(dir, "Test.txt")
+		path1 := filepath.Join(dir, "Test1.txt")
+
+		for i := 0; i < 5; i++ {
+			if err := AppendToFile(path, fmt.Sprintf("中Ha%d", i)); err != nil {
+				t.Fatal(err)
+			}
+		}
+		list, err := TailFile(path, 10)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(list) != 5 {
+			t.Fatalf("tail size=%d", len(list))
+		}
+		for i := 0; i < len(list); i++ {
+			want := fmt.Sprintf("中Ha%d", i)
+			if list[i] != want {
+				t.Fatalf("list[%d]=%q want %q", i, list[i], want)
+			}
+		}
+
+		startPos, err := GetFileLength(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if err := Copy(path, path1); err != nil {
+			t.Fatal(err)
+		}
+		wantContent := "中Ha0\n中Ha1\n中Ha2\n中Ha3\n中Ha4\n"
+		got, err := GetFileContent(path1)
+		if err != nil || got != wantContent {
+			t.Fatalf("copy content=%q err=%v", got, err)
+		}
+
+		srcContent, err := GetFileContent(path1)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := CreateFileWithContent(path1, srcContent); err != nil {
+			t.Fatal(err)
+		}
+		got, err = GetFileContent(path1)
+		if err != nil || got != wantContent {
+			t.Fatalf("after create content=%q err=%v", got, err)
+		}
+		if err := DeleteFile(path1); err != nil {
+			t.Fatal(err)
+		}
+
+		if err := AppendToFile(path, "中Ha5"); err != nil {
+			t.Fatal(err)
+		}
+		list, err = TailFileFrom(path, startPos, 10)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(list) != 1 || list[0] != "中Ha5" {
+			t.Fatalf("incremental tail=%v", list)
+		}
+		if !FileExists(path) {
+			t.Fatal("file should exist")
+		}
+		if err := DeleteFile(path); err != nil {
+			t.Fatal(err)
+		}
+		if FileExists(path) {
+			t.Fatal("file should be deleted")
+		}
+	})
+}
+
 func TestCopyMove(t *testing.T) {
 	dir := t.TempDir()
 	src := filepath.Join(dir, "src.txt")
@@ -58,6 +136,22 @@ func TestCopyMove(t *testing.T) {
 		got, _ := GetFileContent(dst)
 		if got != "abc" {
 			t.Fatalf("copy got %q", got)
+		}
+	})
+
+	t.Run("复制UTF8多行全文一致", func(t *testing.T) {
+		utfSrc := filepath.Join(dir, "utf-src.txt")
+		utfDst := filepath.Join(dir, "utf-dst.txt")
+		content := "中Ha0\n中Ha1\n中Ha2\n"
+		if err := CreateFileWithContent(utfSrc, content); err != nil {
+			t.Fatal(err)
+		}
+		if err := Copy(utfSrc, utfDst); err != nil {
+			t.Fatal(err)
+		}
+		got, err := GetFileContent(utfDst)
+		if err != nil || got != content {
+			t.Fatalf("got=%q err=%v", got, err)
 		}
 	})
 

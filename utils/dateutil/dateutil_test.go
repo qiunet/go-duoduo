@@ -110,7 +110,7 @@ func TestDateUtil_TimeOffset(t *testing.T) {
 			t.Fatal(err)
 		}
 		after := CurrentTimeMillis()
-		if after-before < int64((10 * time.Minute)/time.Millisecond) {
+		if after-before < int64((10*time.Minute)/time.Millisecond) {
 			t.Fatalf("offset too small: %d", after-before)
 		}
 	})
@@ -154,6 +154,21 @@ func TestDateUtil_TimeChangeListener(t *testing.T) {
 	})
 }
 
+func TestDateUtil_AddHour(t *testing.T) {
+	t.Run("加减小时毫秒差", func(t *testing.T) {
+		// 对齐 Java TestDateUtil.testAddHour
+		const hours = 5
+		now := Now()
+		delta := int64(hours * 60 * 60 * 1000)
+		if GetMilliByTime(now)-delta != GetMilliByTime(now.Add(-hours*time.Hour)) {
+			t.Fatal("minus hours")
+		}
+		if GetMilliByTime(now)+delta != GetMilliByTime(now.Add(hours*time.Hour)) {
+			t.Fatal("plus hours")
+		}
+	})
+}
+
 func TestDateUtil_ZoneRoundTrip(t *testing.T) {
 	t.Run("默认时区与UTC毫秒接近", func(t *testing.T) {
 		nowLocal := Now()
@@ -166,6 +181,25 @@ func TestDateUtil_ZoneRoundTrip(t *testing.T) {
 		}
 		if diff >= 10 {
 			t.Fatalf("diff=%d", diff)
+		}
+	})
+
+	t.Run("格式化再解析后毫秒相等", func(t *testing.T) {
+		// 对齐 Java TestDateUtil.testDateTime 后半段
+		nowLocal := Now()
+		nowUTC := NowIn(time.UTC)
+		localParsed, err := StringToDate(DateToString(nowLocal))
+		if err != nil {
+			t.Fatal(err)
+		}
+		utcParsed, err := StringToDate(DateToString(nowUTC))
+		if err != nil {
+			t.Fatal(err)
+		}
+		milli1 := GetMilliByTime(localParsed)
+		milli2 := GetMilliByTimeIn(utcParsed, time.UTC)
+		if milli1 != milli2 {
+			t.Fatalf("milli1=%d milli2=%d", milli1, milli2)
 		}
 	})
 
