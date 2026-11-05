@@ -1,4 +1,4 @@
-package utils
+package pathutil
 
 import (
 	"errors"
@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"slices"
 	"testing"
+
+	"utils/fileutil"
 )
 
 func TestFilename(t *testing.T) {
@@ -32,7 +34,7 @@ func TestFilename(t *testing.T) {
 func TestDirname(t *testing.T) {
 	dir := t.TempDir()
 	file := filepath.Join(dir, "x.txt")
-	if err := WriteFile(file, "1"); err != nil {
+	if err := fileutil.WriteFile(file, "1"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -99,16 +101,16 @@ func TestListDir(t *testing.T) {
 	b := filepath.Join(dir, "b.log")
 	sub := filepath.Join(dir, "sub")
 	nested := filepath.Join(sub, "c.txt")
-	if err := WriteFile(a, "1"); err != nil {
+	if err := fileutil.WriteFile(a, "1"); err != nil {
 		t.Fatal(err)
 	}
-	if err := WriteFile(b, "2"); err != nil {
+	if err := fileutil.WriteFile(b, "2"); err != nil {
 		t.Fatal(err)
 	}
 	if err := os.Mkdir(sub, 0755); err != nil {
 		t.Fatal(err)
 	}
-	if err := WriteFile(nested, "3"); err != nil {
+	if err := fileutil.WriteFile(nested, "3"); err != nil {
 		t.Fatal(err)
 	}
 

@@ -1,4 +1,4 @@
-package utils
+package bitutil
 
 // WriteBit 将 val 写入 ori 的 index 起始位（左移后按位或）。
 // 对应 Java BitUtil.writeBit。

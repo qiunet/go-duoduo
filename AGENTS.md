@@ -15,7 +15,7 @@
 | 路径 | 模块名 | 职责 | 备注 |
 |------|--------|------|------|
 | `logger/` | `logger` | 日志封装 | `GetLogger(name)` 风格 |
-| `utils/` | `utils` | 通用工具 | 含 `jsonutil`、`fileutil` 等 |
+| `utils/` | `utils` | 通用工具模块 | 子包：`bitutil`、`dateutil`、`fileutil`、`httpclient`、`jsonutil`、`mathutil`、`pathutil` |
 | `docs/` | — | 说明 / 设计等文档 | 非 Go 模块；必要说明文档建在此处 |
 | `scripts/` | — | 脚本存放区 | 非 Go 模块；构建、工具、运维脚本等 |
 | TODO | TODO | TODO | TODO |
@@ -42,8 +42,8 @@ go test -C ./utils ./...
 go test -C ./logger ./...
 
 # 构建某个模块
-go build -C ./utils .
-go build -C ./logger .
+go build -C ./utils ./...
+go build -C ./logger ./...
 
 # 依赖整理（在对应模块目录）
 cd utils && go mod tidy
@@ -61,10 +61,11 @@ cd utils && go mod tidy
 - **命名**：TODO（包名、导出符号、文件名习惯）
 - **错误处理**：TODO
 - **日志**：优先用 `logger.GetLogger("name")`，再 `Info` / `Error` 等
-- **JSON**（`utils`）：
+- **JSON**（`utils/jsonutil`）：
   - `ToJSONString` / `FromJSONString`：对象 ↔ JSON 字符串
   - `nil` / 空串 / `"null"` 不转换
   - `time.Time` 序列化为**秒级时间戳**；零值时间为 `null`；字段可用 `omitempty` 省略
+- **子包导入**：按能力引入，例如 `utils/jsonutil`、`utils/fileutil`；不要再依赖根包 `utils` 下的 `.go` 文件（根仅保留 `go.mod`）
 - **注释（强制）**：
   - **每个方法 / 函数都必须有注释**，说明用途（做什么、何时用）
   - **注释必须使用中文**（含导出 / 非导出方法、类型、重要常量等）
@@ -112,8 +113,9 @@ TODO（可写：分层、模块依赖方向、配置方式、并发模型等）
 | `AGENTS.md` | Agent 指南（本文件） |
 | `.editorconfig` | 编辑器格式 |
 | `logger/logger.go` | 命名 Logger |
-| `utils/jsonutil.go` | JSON 工具 |
-| `utils/fileutil.go` | 文件工具 |
+| `utils/jsonutil/` | JSON 工具 |
+| `utils/fileutil/` | 文件工具 |
+| `utils/httpclient/` | HTTP 客户端 |
 | `docs/` | 说明文档目录 |
 | `scripts/` | 脚本目录 |
 | TODO | TODO |
