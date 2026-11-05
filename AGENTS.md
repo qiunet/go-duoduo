@@ -15,7 +15,7 @@
 | 路径 | 模块名 | 职责 | 备注 |
 |------|--------|------|------|
 | `logger/` | `logger` | 日志封装 | `GetLogger(name)` 风格 |
-| `utils/` | `utils` | 通用工具模块 | 子包：`bitutil`、`commonutil`、`dateutil`、`fileutil`、`httpclient`、`jsonutil`、`mathutil`、`netutil`、`pathutil`、`strutil` |
+| `utils/` | `utils` | 通用工具模块 | 子包：`bitutil`、`commonutil`、`config`、`dateutil`、`fileutil`、`httpclient`、`jsonutil`、`mathutil`、`netutil`、`pathutil`、`strutil` |
 | `docs/` | — | 说明 / 设计等文档 | 非 Go 模块；必要说明文档建在此处 |
 | `scripts/` | — | 脚本存放区 | 非 Go 模块；构建、工具、运维脚本等 |
 | TODO | TODO | TODO | TODO |
@@ -115,6 +115,7 @@ TODO（可写：分层、模块依赖方向、配置方式、并发模型等）
 | `logger/logger.go` | 命名 Logger |
 | `utils/jsonutil/` | JSON 工具 |
 | `utils/fileutil/` | 文件工具 |
+| `utils/config/` | YAML 配置加载（default / env / `a.b.c`） |
 | `utils/strutil/` | 字符串 / ToString |
 | `utils/httpclient/` | HTTP 客户端 |
 | `docs/` | 说明文档目录 |
